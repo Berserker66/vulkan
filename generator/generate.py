@@ -445,6 +445,31 @@ def generate_py():
     with open(out_file, 'w') as out:
         out.write(env.get_template('vulkan.template.py').render(model=model))
 
+def generate_pyx():
+    """Generate the cython output file"""
+    model = {}
+
+    vk = init()
+    format_vk(vk)
+    model_typedefs(vk, model)
+    model_enums(vk, model)
+    model_macros(vk, model)
+    model_funcpointers(vk, model)
+    model_exceptions(vk, model)
+    model_constructors(vk, model)
+    model_functions(vk, model)
+    model_ext_functions(vk, model)
+
+    env = jinja2.Environment(
+        autoescape=False,
+        trim_blocks=True,
+        lstrip_blocks=True,
+        loader=jinja2.FileSystemLoader(HERE)
+    )
+
+    out_file = path.join(HERE, path.pardir, 'vulkan', '__init__.pyx')
+    with open(out_file, 'w') as out:
+        out.write(env.get_template('vulkan.template.pyx').render(model=model))
 
 def generate_cdef():
     """Generate the cdef output file"""
@@ -469,9 +494,9 @@ def generate_cdef():
 
 def main():
     """Main function to generate files"""
-    generate_cdef()
     generate_py()
-
+    generate_pyx()
+    generate_cdef()
 
 if __name__ == '__main__':
     main()
